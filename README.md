@@ -33,6 +33,9 @@ To enable the plugin within your Telegraf instance, add the following section to
   signal = "none"
 ```
 
+### TODO
+Implement the gathering of swarm data. **Contributions are welcome!**
+
 ### License
 This project is subject to the the MIT License.
 See [LICENSE](./LICENSE) information for details.
