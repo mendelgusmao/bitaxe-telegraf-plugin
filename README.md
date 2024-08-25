@@ -3,7 +3,7 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mendelgusmao_bitaxe-telegraf-plugin&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mendelgusmao_bitaxe-telegraf-plugin)
 
 ## About bitaxe-telegraf-plugin
-This [Telegraf](https://github.com/influxdata/telegraf) input plugin gathers data from crypto miners running [BitAxe](https://bitaxe.org/) firmware.
+This [Telegraf](https://github.com/influxdata/telegraf) input plugin gathers data from crypto miners running [Bitaxe](https://bitaxe.org/) firmware.
 
 ### Installation
 To install the plugin you have to download a suitable [release archive](https://github.com/mendelgusmao/bitaxe-telegraf-plugin/releases) and extract it or build it from source by cloning the repository and issueing a simple
