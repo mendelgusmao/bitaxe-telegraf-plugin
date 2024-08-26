@@ -29,5 +29,5 @@ func (t *SuffixedNumber) UnmarshalJSON(data []byte) error {
 
 	*t = SuffixedNumber(number)
 
-	return err
+	return nil
 }

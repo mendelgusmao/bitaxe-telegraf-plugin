@@ -11,6 +11,7 @@ const (
 	units             = "KMGTP"
 	invalidInputError = "convert: invalid input: `%v`"
 	invalidUnitError  = "convert: invalid unit: `%v`"
+	genericError      = "convert: %v"
 )
 
 func convert(s string) (float64, error) {
@@ -37,7 +38,7 @@ func convert(s string) (float64, error) {
 	number, err = strconv.ParseFloat(stringNumber, 64)
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf(genericError, unit)
 	}
 
 	return number * math.Pow(10, unitPower*3), nil

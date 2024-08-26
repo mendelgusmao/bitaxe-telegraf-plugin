@@ -2,14 +2,18 @@ package bitaxe
 
 import (
 	_ "embed"
+	"fmt"
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	bitaxelib "github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/bitaxe"
 )
 
-//go:embed bitaxe.conf
-var sampleConfig string
+var (
+	//go:embed bitaxe.conf
+	sampleConfig string
+	gatherError  = "bitaxeinput.Gather: %v"
+)
 
 type bitaxeinput struct {
 	Miners  []string `toml:"miners"`
@@ -31,7 +35,7 @@ func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
 		miner, err := i.fetcher.Fetch(minerAddress)
 
 		if err != nil {
-			return err
+			return fmt.Errorf(gatherError, err)
 		}
 
 		acc.AddFields("bitaxe", miner.Fields(), miner.Tags())
