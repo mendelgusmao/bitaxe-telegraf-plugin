@@ -36,8 +36,8 @@ var (
 		StratumUser:       "luckyperson.001",
 		Version:           "v2.1.8",
 		BoardVersion:      "204",
-		Autofanspeed:      1,
-		Fanspeed:          100,
+		AutoFanSpeed:      1,
+		FanSpeed:          100,
 	}
 )
 

@@ -7,15 +7,17 @@ import (
 type MinerInfo struct {
 	Power             float64              `json:"power"`
 	Voltage           float64              `json:"voltage"`
+	CoreVoltage       int                  `json:"coreVoltage"`
+	CoreVoltageActual int                  `json:"coreVoltageActual"`
 	Current           float64              `json:"current"`
+	FanSpeed          int                  `json:"fanspeed"`
 	FanSpeedRpm       int                  `json:"fanSpeedRpm"`
 	Temp              int                  `json:"temp"`
+	OverheatMode      int                  `json:"overheat_mode"`
 	HashRate          float64              `json:"hashRate"`
 	BestDiff          *unit.SuffixedNumber `json:"bestDiff"`
 	BestSessionDiff   *unit.SuffixedNumber `json:"bestSessionDiff"`
 	FreeHeap          int                  `json:"freeHeap"`
-	CoreVoltage       int                  `json:"coreVoltage"`
-	CoreVoltageActual int                  `json:"coreVoltageActual"`
 	Frequency         int                  `json:"frequency"`
 	Ssid              string               `json:"-"`
 	Hostname          string               `json:"hostname"`
@@ -24,15 +26,16 @@ type MinerInfo struct {
 	SharesRejected    int                  `json:"sharesRejected"`
 	UptimeSeconds     int                  `json:"uptimeSeconds"`
 	ASICModel         string               `json:"ASICModel"`
+	ASICCount         int                  `json:"asicCount"`
+	SmallCoreCount    int                  `json:"smallCoreCount"`
 	StratumURL        string               `json:"stratumURL"`
 	StratumPort       int                  `json:"stratumPort"`
 	StratumUser       string               `json:"stratumUser"`
 	Version           string               `json:"version"`
 	BoardVersion      string               `json:"boardVersion"`
 	RunningPartition  string               `json:"-"`
-	Flipscreen        int                  `json:"-"`
-	Invertscreen      int                  `json:"-"`
-	Invertfanpolarity int                  `json:"-"`
-	Autofanspeed      int                  `json:"autofanspeed"`
-	Fanspeed          int                  `json:"fanspeed"`
+	FlipScreen        int                  `json:"-"`
+	InvertScreen      int                  `json:"-"`
+	InvertFanPolarity int                  `json:"-"`
+	AutoFanSpeed      int                  `json:"autofanspeed"`
 }

@@ -77,8 +77,8 @@ func TestFetch(t *testing.T) {
 		StratumUser:       "luckyperson.001",
 		Version:           "v2.1.8",
 		BoardVersion:      "204",
-		Autofanspeed:      1,
-		Fanspeed:          100,
+		AutoFanSpeed:      1,
+		FanSpeed:          100,
 	}
 
 	require.Equal(t, expected, *miner, "disks' slice is different from expected")
