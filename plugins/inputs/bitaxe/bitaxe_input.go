@@ -38,7 +38,8 @@ func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
 			return fmt.Errorf(gatherError, err)
 		}
 
-		acc.AddFields("bitaxe", miner.Fields(), miner.Tags())
+		metric := bitaxemetric(*miner)
+		acc.AddFields("bitaxe", metric.Fields(), metric.Tags())
 	}
 
 	return nil

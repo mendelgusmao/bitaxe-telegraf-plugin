@@ -58,6 +58,7 @@ func TestFetch(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, 16, acc.NFields())
+	metric := bitaxemetric(*minerInfo)
 
-	acc.AssertContainsTaggedFields(t, "bitaxe", minerInfo.Fields(), minerInfo.Tags())
+	acc.AssertContainsTaggedFields(t, "bitaxe", metric.Fields(), metric.Tags())
 }
