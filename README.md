@@ -10,7 +10,7 @@ To install the plugin you have to download a suitable [release archive](https://
 ```
 make
 ```
-To build the plugin, Go version 1.16 or higher is required. The resulting plugin binary will be written to **./build/bin**.
+To build the plugin, Go version 1.23 or higher is required. The resulting plugin binary will be written to **./build/bin**.
 Copy the either extracted or built plugin binary to a location of your choice (e.g. /usr/local/bin/telegraf/).
 
 ### Configuration
