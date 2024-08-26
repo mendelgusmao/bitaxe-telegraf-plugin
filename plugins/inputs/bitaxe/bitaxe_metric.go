@@ -18,7 +18,7 @@ func (m bitaxemetric) Tags() map[string]string {
 		"os_version":            m.Version,
 		"board_version":         m.BoardVersion,
 		"auto_fan_speed":        strconv.Itoa(m.AutoFanSpeed),
-		"overhead_mode":         strconv.Itoa(m.OverheatMode),
+		"overheat_mode":         strconv.Itoa(m.OverheatMode),
 		"asic_count":            strconv.Itoa(m.ASICCount),
 		"asic_small_core_count": strconv.Itoa(m.SmallCoreCount),
 	}
