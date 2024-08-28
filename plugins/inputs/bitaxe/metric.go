@@ -7,9 +7,9 @@ import (
 	bitaxelib "github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/bitaxe"
 )
 
-type bitaxemetric bitaxelib.MinerInfo
+type bitaxeMetric bitaxelib.SystemInfo
 
-func (m bitaxemetric) Tags() map[string]string {
+func (m bitaxeMetric) Tags() map[string]string {
 	return map[string]string{
 		"hostname":              m.Hostname,
 		"asic_model":            m.ASICModel,
@@ -24,7 +24,7 @@ func (m bitaxemetric) Tags() map[string]string {
 	}
 }
 
-func (m bitaxemetric) Fields() map[string]any {
+func (m bitaxeMetric) Fields() map[string]any {
 	return map[string]any{
 		"power":                m.Power,
 		"voltage":              m.Voltage,
