@@ -1,10 +1,18 @@
 package bitaxe
 
 import (
+	"maps"
+	"slices"
+
 	"github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/unit"
 )
 
-type MinerInfo struct {
+const (
+	fetchError            = "bitaxe.Fetch: fetching %s: %v"
+	unexpectedStatusError = "bitaxe.Fetch: fetching %s: unexpected status `%s`"
+)
+
+type SystemInfo struct {
 	Power             float64              `json:"power"`
 	Voltage           float64              `json:"voltage"`
 	CoreVoltage       int                  `json:"coreVoltage"`
@@ -38,4 +46,26 @@ type MinerInfo struct {
 	InvertScreen      int                  `json:"-"`
 	InvertFanPolarity int                  `json:"-"`
 	AutoFanSpeed      int                  `json:"autofanspeed"`
+}
+
+type SwarmInfo []struct {
+	IP string `json:"ip"`
+}
+
+func (i SwarmInfo) UniqueDevices(devices []string) []string {
+	type set map[string]struct{}
+
+	hosts := make(set)
+
+	for _, device := range i {
+		hosts[device.IP] = struct{}{}
+	}
+
+	for _, device := range devices {
+		hosts[device] = struct{}{}
+	}
+
+	return slices.Collect(
+		maps.Keys[set](hosts),
+	)
 }

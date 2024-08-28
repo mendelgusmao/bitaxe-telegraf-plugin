@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFetch(t *testing.T) {
+func TestFetchSystemInfo(t *testing.T) {
 	response := map[string]any{
 		"power":             11.979999542236328,
 		"voltage":           5171.25,
@@ -44,17 +44,17 @@ func TestFetch(t *testing.T) {
 		"fanspeed":          100,
 	}
 
-	s := serve(t, http.StatusOK, response)
+	s := serve(t, systemResource, http.StatusOK, response)
 	defer s.Listener.Close()
 
-	miner, err := NewFetcher().Fetch(s.Listener.Addr().String())
+	miner, err := NewSystemFetcher().Fetch(s.Listener.Addr().String())
 
 	require.NoError(t, err)
 
 	bestDiff := unit.SuffixedNumber(258_000_000)
 	bestSessionDiff := unit.SuffixedNumber(2_880_000)
 
-	expected := MinerInfo{
+	expected := SystemInfo{
 		Power:             11.979999542236328,
 		Voltage:           5171.25,
 		Current:           2323.75,
@@ -81,23 +81,23 @@ func TestFetch(t *testing.T) {
 		FanSpeed:          100,
 	}
 
-	require.Equal(t, expected, *miner, "disks' slice is different from expected")
+	require.Equal(t, expected, *miner, "systemInfo is different from expected")
 }
 
-func TestFetchWrongAddress(t *testing.T) {
-	_, err := NewFetcher().Fetch("127.0.0.1:1")
+func TestFetchSystemInfoWrongAddress(t *testing.T) {
+	_, err := NewSystemFetcher().Fetch("127.0.0.1:1")
 	require.Error(t, err)
 }
 
-func TestFetchWithUnexpectedHTTPStatus(t *testing.T) {
-	s := serve(t, http.StatusInternalServerError, nil)
+func TestFetchSystemInfoWithUnexpectedHTTPStatus(t *testing.T) {
+	s := serve(t, systemResource, http.StatusInternalServerError, nil)
 	defer s.Listener.Close()
 
-	_, err := NewFetcher().Fetch(s.Listener.Addr().String())
+	_, err := NewSystemFetcher().Fetch(s.Listener.Addr().String())
 	require.Error(t, err)
 }
 
-func serve(t *testing.T, httpStatus int, response map[string]any) *httptest.Server {
+func serve(t *testing.T, path string, httpStatus int, response any) *httptest.Server {
 	body, err := json.Marshal(response)
 
 	require.NoError(t, err)

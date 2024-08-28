@@ -7,20 +7,18 @@ import (
 )
 
 const (
-	path                  = "/api/system/info"
-	endpoint              = "http://%s" + path
-	fetchError            = "bitaxe.Fetch: fetching %s: %v"
-	unexpectedStatusError = "bitaxe.Fetch: fetching %s: unexpected status `%s`"
+	systemResource = "/api/system/info"
+	systemEndpoint = "http://%s" + systemResource
 )
 
-type bitaxefetcher struct{}
+type systemFetcher struct{}
 
-func NewFetcher() *bitaxefetcher {
-	return &bitaxefetcher{}
+func NewSystemFetcher() *systemFetcher {
+	return &systemFetcher{}
 }
 
-func (h *bitaxefetcher) Fetch(address string) (*MinerInfo, error) {
-	address = fmt.Sprintf(endpoint, address)
+func (h *systemFetcher) Fetch(address string) (*SystemInfo, error) {
+	address = fmt.Sprintf(systemEndpoint, address)
 	response, err := http.Get(address)
 
 	if err != nil {
@@ -31,7 +29,7 @@ func (h *bitaxefetcher) Fetch(address string) (*MinerInfo, error) {
 		return nil, fmt.Errorf(unexpectedStatusError, address, response.Status)
 	}
 
-	miner := &MinerInfo{}
+	miner := &SystemInfo{}
 
 	if err := json.NewDecoder(response.Body).Decode(miner); err != nil {
 		return nil, fmt.Errorf(fetchError, address, err)
