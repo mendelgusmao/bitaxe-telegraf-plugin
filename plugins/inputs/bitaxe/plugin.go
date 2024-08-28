@@ -2,6 +2,7 @@ package bitaxe
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 
 	"github.com/influxdata/telegraf"
@@ -33,7 +34,7 @@ type bitaxeinput struct {
 
 func (i *bitaxeinput) Init() error {
 	if len(i.Devices) == 0 {
-		return fmt.Errorf(emptyDevicesError)
+		return errors.New(emptyDevicesError)
 	}
 
 	i.systemFetcher = bitaxelib.NewSystemFetcher()
