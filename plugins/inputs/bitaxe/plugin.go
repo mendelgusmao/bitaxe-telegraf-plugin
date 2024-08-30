@@ -8,6 +8,7 @@ import (
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	bitaxelib "github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/bitaxe"
+	"github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/set"
 )
 
 var (
@@ -44,7 +45,7 @@ func (i *bitaxeinput) Init() error {
 }
 
 func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
-	devices := append([]string{}, i.Devices...)
+	devices := set.NewSet[string](i.Devices...)
 
 	if i.AllowSwarmMode {
 		swarmInfo, err := i.swarmFetcher.Fetch(i.Devices[0])
@@ -53,10 +54,12 @@ func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
 			return fmt.Errorf(gatherError, err)
 		}
 
-		devices = swarmInfo.UniqueDevices(i.Devices)
+		for _, address := range swarmInfo.Addresses() {
+			devices.Add(address)
+		}
 	}
 
-	for _, deviceAddress := range devices {
+	for _, deviceAddress := range devices.Values() {
 		systemInfo, err := i.systemFetcher.Fetch(deviceAddress)
 
 		if err != nil {

@@ -1,9 +1,6 @@
 package bitaxe
 
 import (
-	"maps"
-	"slices"
-
 	"github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/unit"
 )
 
@@ -52,20 +49,12 @@ type SwarmInfo []struct {
 	IP string `json:"ip"`
 }
 
-func (i SwarmInfo) UniqueDevices(devices []string) []string {
-	type set map[string]struct{}
+func (i SwarmInfo) Addresses() []string {
+	h := make([]string, len(i))
 
-	hosts := make(set)
-
-	for _, device := range i {
-		hosts[device.IP] = struct{}{}
+	for index, v := range i {
+		h[index] = v.IP
 	}
 
-	for _, device := range devices {
-		hosts[device] = struct{}{}
-	}
-
-	return slices.Collect(
-		maps.Keys[set](hosts),
-	)
+	return h
 }
