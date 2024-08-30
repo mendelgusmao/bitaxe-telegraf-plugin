@@ -75,7 +75,7 @@ func (f *mockedSwarmFetcher) Fetch(_ string) (bitaxelib.SwarmInfo, error) {
 }
 
 func TestGatherWithOneDevice(t *testing.T) {
-	bitaxe := &bitaxeinput{
+	bitaxe := &plugin{
 		systemFetcher: &mockedSystemFetcher{},
 		Devices:       []string{"10.0.0.1"},
 	}
@@ -91,7 +91,7 @@ func TestGatherWithOneDevice(t *testing.T) {
 }
 
 func TestGatherWithOneDeviceWithError(t *testing.T) {
-	bitaxe := &bitaxeinput{
+	bitaxe := &plugin{
 		systemFetcher: &mockedSystemFetcher{error: true},
 		Devices:       []string{"10.0.0.1"},
 	}
@@ -103,7 +103,7 @@ func TestGatherWithOneDeviceWithError(t *testing.T) {
 }
 
 func TestGatherWithDevicesInSwarm(t *testing.T) {
-	bitaxe := &bitaxeinput{
+	bitaxe := &plugin{
 		systemFetcher:  &mockedSystemFetcher{},
 		swarmFetcher:   &mockedSwarmFetcher{},
 		Devices:        []string{"10.0.0.1"},
@@ -121,7 +121,7 @@ func TestGatherWithDevicesInSwarm(t *testing.T) {
 }
 
 func TestGatherWithDevicesInSwarmWithError(t *testing.T) {
-	bitaxe := &bitaxeinput{
+	bitaxe := &plugin{
 		systemFetcher:  &mockedSystemFetcher{},
 		swarmFetcher:   &mockedSwarmFetcher{error: true},
 		Devices:        []string{"10.0.0.1"},

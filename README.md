@@ -19,17 +19,19 @@ This is an [external plugin](https://github.com/influxdata/telegraf/blob/master/
 To use it you have to create a plugin specific config file (e.g. /etc/telegraf/bitaxe.conf) with following template content:
 
 ```toml
-# Fetch bitaxe data from compatible devices
 [[inputs.bitaxe]]
   # devices is an array of the devices' hostnames or IP addresses 
-  devices = ["192.168.1.1", "bitcoin-miner"]
+  devices = ["192.168.1.1", "crypto-miner"]
+
+  ## Amount of time allowed to complete the HTTP request
+  # timeout = "5s"
 
   # allow_swarm_mode tells the gatherer to fetch swarm data from the
   # first device in devices list and then from the hosts in the response.
   # if the swarm list is empty, the gatherer falls back to the main devices list
   # allow_swarm_mode = false
 ```
-The most important setting is the **miners** line. It defines the miners' IP addresses or hostnames to query. At least one address has to be defined.
+The most important setting is the **devices** line. It defines the miners' IP addresses or hostnames to query. At least one address has to be defined.
 
 To enable the plugin within your Telegraf instance, add the following section to your **telegraf.conf**
 ```toml

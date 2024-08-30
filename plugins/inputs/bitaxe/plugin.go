@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
@@ -14,41 +15,42 @@ import (
 var (
 	//go:embed bitaxe.conf
 	sampleConfig      string
-	gatherError       = "bitaxeinput.Gather: %v"
+	gatherError       = "plugin.Gather: %v"
 	emptyDevicesError = "at least one device address should be specified"
 )
 
 type systemFetcher interface {
-	Fetch(address string) (*bitaxelib.SystemInfo, error)
+	Fetch(string) (*bitaxelib.SystemInfo, error)
 }
 
 type swarmFetcher interface {
-	Fetch(address string) (bitaxelib.SwarmInfo, error)
+	Fetch(string) (bitaxelib.SwarmInfo, error)
 }
 
-type bitaxeinput struct {
-	Devices        []string `toml:"devices"`
-	AllowSwarmMode bool     `toml:"allow_swarm_mode"`
+type plugin struct {
+	Devices        []string      `toml:"devices"`
+	Timeout        time.Duration `toml:"timeout"`
+	AllowSwarmMode bool          `toml:"allow_swarm_mode"`
 	systemFetcher  systemFetcher
 	swarmFetcher   swarmFetcher
 }
 
-func (i *bitaxeinput) Init() error {
-	if len(i.Devices) == 0 {
+func (p *plugin) Init() error {
+	if len(p.Devices) == 0 {
 		return errors.New(emptyDevicesError)
 	}
 
-	i.systemFetcher = bitaxelib.NewSystemFetcher()
-	i.swarmFetcher = bitaxelib.NewSwarmFetcher()
+	p.systemFetcher = bitaxelib.NewSystemFetcher(p.Timeout)
+	p.swarmFetcher = bitaxelib.NewSwarmFetcher(p.Timeout)
 
 	return nil
 }
 
-func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
-	devices := set.NewSet[string](i.Devices...)
+func (p *plugin) Gather(acc telegraf.Accumulator) error {
+	devices := set.NewSet[string](p.Devices...)
 
-	if i.AllowSwarmMode {
-		swarmInfo, err := i.swarmFetcher.Fetch(i.Devices[0])
+	if p.AllowSwarmMode {
+		swarmInfo, err := p.swarmFetcher.Fetch(p.Devices[0])
 
 		if err != nil {
 			return fmt.Errorf(gatherError, err)
@@ -60,7 +62,7 @@ func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
 	}
 
 	for _, deviceAddress := range devices.Values() {
-		systemInfo, err := i.systemFetcher.Fetch(deviceAddress)
+		systemInfo, err := p.systemFetcher.Fetch(deviceAddress)
 
 		if err != nil {
 			return fmt.Errorf(gatherError, err)
@@ -73,14 +75,17 @@ func (i *bitaxeinput) Gather(acc telegraf.Accumulator) error {
 	return nil
 }
 
-func (*bitaxeinput) SampleConfig() string {
+func (*plugin) SampleConfig() string {
 	return sampleConfig
 }
 
 func init() {
 	inputs.Add("bitaxe", func() telegraf.Input {
-		return &bitaxeinput{
+		timeout, _ := time.ParseDuration("5s")
+
+		return &plugin{
 			Devices:        []string{},
+			Timeout:        timeout,
 			AllowSwarmMode: false,
 		}
 	})

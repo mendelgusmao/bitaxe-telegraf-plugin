@@ -3,6 +3,7 @@ package bitaxe
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func TestFetch(t *testing.T) {
 	s := serve(t, swarmResource, http.StatusOK, response)
 	defer s.Listener.Close()
 
-	swarmInfo, err := NewSwarmFetcher().Fetch(s.Listener.Addr().String())
+	swarmInfo, err := NewSwarmFetcher(1 * time.Second).Fetch(s.Listener.Addr().String())
 
 	require.NoError(t, err)
 
@@ -31,7 +32,7 @@ func TestFetch(t *testing.T) {
 }
 
 func TestFetchWrongAddress(t *testing.T) {
-	_, err := NewSwarmFetcher().Fetch("127.0.0.1:1")
+	_, err := NewSwarmFetcher(1 * time.Second).Fetch("127.0.0.1:1")
 	require.Error(t, err)
 }
 
@@ -39,6 +40,6 @@ func TestFetchWithUnexpectedHTTPStatus(t *testing.T) {
 	s := serve(t, swarmResource, http.StatusInternalServerError, nil)
 	defer s.Listener.Close()
 
-	_, err := NewSwarmFetcher().Fetch(s.Listener.Addr().String())
+	_, err := NewSwarmFetcher(1 * time.Second).Fetch(s.Listener.Addr().String())
 	require.Error(t, err)
 }

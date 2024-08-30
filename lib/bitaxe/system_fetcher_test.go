@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/unit"
 	"github.com/stretchr/testify/require"
@@ -47,7 +48,7 @@ func TestFetchSystemInfo(t *testing.T) {
 	s := serve(t, systemResource, http.StatusOK, response)
 	defer s.Listener.Close()
 
-	miner, err := NewSystemFetcher().Fetch(s.Listener.Addr().String())
+	miner, err := NewSystemFetcher(1 * time.Second).Fetch(s.Listener.Addr().String())
 
 	require.NoError(t, err)
 
@@ -85,7 +86,7 @@ func TestFetchSystemInfo(t *testing.T) {
 }
 
 func TestFetchSystemInfoWrongAddress(t *testing.T) {
-	_, err := NewSystemFetcher().Fetch("127.0.0.1:1")
+	_, err := NewSystemFetcher(1 * time.Second).Fetch("127.0.0.1:1")
 	require.Error(t, err)
 }
 
@@ -93,7 +94,7 @@ func TestFetchSystemInfoWithUnexpectedHTTPStatus(t *testing.T) {
 	s := serve(t, systemResource, http.StatusInternalServerError, nil)
 	defer s.Listener.Close()
 
-	_, err := NewSystemFetcher().Fetch(s.Listener.Addr().String())
+	_, err := NewSystemFetcher(1 * time.Second).Fetch(s.Listener.Addr().String())
 	require.Error(t, err)
 }
 

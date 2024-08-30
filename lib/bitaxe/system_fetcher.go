@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 const (
@@ -11,15 +12,22 @@ const (
 	systemEndpoint = "http://%s" + systemResource
 )
 
-type systemFetcher struct{}
-
-func NewSystemFetcher() *systemFetcher {
-	return &systemFetcher{}
+type systemFetcher struct {
+	timeout time.Duration
 }
 
-func (h *systemFetcher) Fetch(address string) (*SystemInfo, error) {
+func NewSystemFetcher(timeout time.Duration) *systemFetcher {
+	return &systemFetcher{
+		timeout: timeout,
+	}
+}
+
+func (f *systemFetcher) Fetch(address string) (*SystemInfo, error) {
+	client := http.Client{
+		Timeout: f.timeout,
+	}
 	address = fmt.Sprintf(systemEndpoint, address)
-	response, err := http.Get(address)
+	response, err := client.Get(address)
 
 	if err != nil {
 		return nil, fmt.Errorf(fetchError, address, err)

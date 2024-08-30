@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 const (
@@ -11,15 +12,22 @@ const (
 	swarmEndpoint = "http://%s" + swarmResource
 )
 
-type swarmFetcher struct{}
+type swarmFetcher struct {
+	timeout time.Duration
+}
 
-func NewSwarmFetcher() *swarmFetcher {
-	return &swarmFetcher{}
+func NewSwarmFetcher(timeout time.Duration) *swarmFetcher {
+	return &swarmFetcher{
+		timeout: timeout,
+	}
 }
 
 func (h *swarmFetcher) Fetch(address string) (SwarmInfo, error) {
+	client := http.Client{
+		Timeout: h.timeout,
+	}
 	address = fmt.Sprintf(swarmEndpoint, address)
-	response, err := http.Get(address)
+	response, err := client.Get(address)
 
 	if err != nil {
 		return SwarmInfo{}, fmt.Errorf(fetchError, address, err)
