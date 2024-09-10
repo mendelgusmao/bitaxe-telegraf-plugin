@@ -8,7 +8,7 @@ import (
 
 const unmarshalError = "SuffixedNumber.UnmarshalJSON: %v"
 
-type SuffixedNumber float64
+type SuffixedNumber int64
 
 func (t *SuffixedNumber) UnmarshalJSON(data []byte) error {
 	input := ""
