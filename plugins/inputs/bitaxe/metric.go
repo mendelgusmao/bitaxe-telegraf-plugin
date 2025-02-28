@@ -3,18 +3,18 @@ package bitaxe
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	bitaxelib "github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/bitaxe"
 )
 
 type bitaxeMetric bitaxelib.SystemInfo
 
-func (m bitaxeMetric) Tags() map[string]string {
-	return map[string]string{
+func (m bitaxeMetric) Tags(workerTagSource workerTagSource) map[string]string {
+	tags := map[string]string{
 		"hostname":              m.Hostname,
 		"asic_model":            m.ASICModel,
 		"stratum_url":           fmt.Sprintf("%s:%d", m.StratumURL, m.StratumPort),
-		"stratum_user":          m.StratumUser,
 		"os_version":            m.Version,
 		"board_version":         m.BoardVersion,
 		"auto_fan_speed":        strconv.Itoa(m.AutoFanSpeed),
@@ -22,6 +22,18 @@ func (m bitaxeMetric) Tags() map[string]string {
 		"asic_count":            strconv.Itoa(m.ASICCount),
 		"asic_small_core_count": strconv.Itoa(m.SmallCoreCount),
 	}
+
+	if workerTagSource == workerTagSourceStratumUser {
+		tags["worker"] = m.StratumUser
+	} else if workerTagSource == workerTagSourceOnlyWorker {
+		parts := strings.Split(m.StratumUser, ".")
+
+		if len(parts) == 2 {
+			tags["worker"] = parts[1]
+		}
+	}
+
+	return tags
 }
 
 func (m bitaxeMetric) Fields() map[string]any {

@@ -14,9 +14,10 @@ import (
 
 var (
 	//go:embed bitaxe.conf
-	sampleConfig      string
-	gatherError       = "plugin.Gather: %v"
-	emptyDevicesError = "at least one device address should be specified"
+	sampleConfig           string
+	gatherError            = "plugin.Gather: %v"
+	emptyDevicesError      = "plugin.Init: at least one device address should be specified"
+	invalidWorkerTagSource = "plugin.Init: invalid value for worker_tag_source attribute: `%v`"
 )
 
 type systemFetcher interface {
@@ -27,17 +28,32 @@ type swarmFetcher interface {
 	Fetch(string) (bitaxelib.SwarmInfo, error)
 }
 
+type workerTagSource string
+
+var (
+	workerTagSourceNone        workerTagSource = "none"
+	workerTagSourceStratumUser workerTagSource = "stratum_user"
+	workerTagSourceOnlyWorker  workerTagSource = "only_worker"
+)
+
 type plugin struct {
-	Devices        []string      `toml:"devices"`
-	Timeout        time.Duration `toml:"timeout"`
-	AllowSwarmMode bool          `toml:"allow_swarm_mode"`
-	systemFetcher  systemFetcher
-	swarmFetcher   swarmFetcher
+	Devices         []string        `toml:"devices"`
+	Timeout         time.Duration   `toml:"timeout"`
+	AllowSwarmMode  bool            `toml:"allow_swarm_mode"`
+	WorkerTagSource workerTagSource `toml:"privacy_mode"`
+	systemFetcher   systemFetcher
+	swarmFetcher    swarmFetcher
 }
 
 func (p *plugin) Init() error {
 	if len(p.Devices) == 0 {
 		return errors.New(emptyDevicesError)
+	}
+
+	if p.WorkerTagSource != workerTagSourceNone &&
+		p.WorkerTagSource != workerTagSourceStratumUser &&
+		p.WorkerTagSource != workerTagSourceOnlyWorker {
+		return fmt.Errorf(invalidWorkerTagSource, p.WorkerTagSource)
 	}
 
 	p.systemFetcher = bitaxelib.NewSystemFetcher(p.Timeout)
@@ -69,7 +85,7 @@ func (p *plugin) Gather(acc telegraf.Accumulator) error {
 		}
 
 		metric := bitaxeMetric(*systemInfo)
-		acc.AddFields("bitaxe", metric.Fields(), metric.Tags())
+		acc.AddFields("bitaxe", metric.Fields(), metric.Tags(p.WorkerTagSource))
 	}
 
 	return nil
@@ -84,9 +100,10 @@ func init() {
 		timeout, _ := time.ParseDuration("5s")
 
 		return &plugin{
-			Devices:        []string{},
-			Timeout:        timeout,
-			AllowSwarmMode: false,
+			Devices:         []string{},
+			Timeout:         timeout,
+			AllowSwarmMode:  false,
+			WorkerTagSource: workerTagSourceNone,
 		}
 	})
 }
