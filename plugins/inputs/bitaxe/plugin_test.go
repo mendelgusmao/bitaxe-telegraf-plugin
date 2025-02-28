@@ -87,7 +87,7 @@ func TestGatherWithOneDevice(t *testing.T) {
 	require.Equal(t, 16, acc.NFields())
 	metric := bitaxeMetric(*systemInfo)
 
-	acc.AssertContainsTaggedFields(t, "bitaxe", metric.Fields(), metric.Tags())
+	acc.AssertContainsTaggedFields(t, "bitaxe", metric.Fields(), metric.Tags(workerTagSourceNone))
 }
 
 func TestGatherWithOneDeviceWithError(t *testing.T) {
@@ -117,7 +117,7 @@ func TestGatherWithDevicesInSwarm(t *testing.T) {
 	require.Equal(t, 32, acc.NFields())
 	metric := bitaxeMetric(*systemInfo)
 
-	acc.AssertContainsTaggedFields(t, "bitaxe", metric.Fields(), metric.Tags())
+	acc.AssertContainsTaggedFields(t, "bitaxe", metric.Fields(), metric.Tags(workerTagSourceNone))
 }
 
 func TestGatherWithDevicesInSwarmWithError(t *testing.T) {
