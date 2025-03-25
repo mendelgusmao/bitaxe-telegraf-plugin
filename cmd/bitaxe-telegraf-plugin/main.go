@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -31,6 +32,7 @@ func main() {
 	}
 
 	shimLayer := shim.New()
+	log.SetOutput(os.Stderr)
 
 	if err = shimLayer.LoadConfig(configFile); err != nil {
 		fmt.Fprintf(os.Stderr, "Err loading input: %s\n", err)

@@ -3,6 +3,7 @@ package bitaxe
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -30,7 +31,8 @@ func (f *systemFetcher) Fetch(address string) (*SystemInfo, error) {
 	response, err := client.Get(address)
 
 	if err != nil {
-		return nil, fmt.Errorf(fetchError, address, err)
+		log.Printf(fetchError, address, err)
+		return nil, nil
 	}
 
 	if response.StatusCode != http.StatusOK {

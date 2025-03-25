@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/influxdata/telegraf"
@@ -14,9 +15,10 @@ import (
 
 var (
 	//go:embed bitaxe.conf
-	sampleConfig      string
-	gatherError       = "plugin.Gather: %v"
-	emptyDevicesError = "at least one device address should be specified"
+	sampleConfig         string
+	gatherError          = "plugin.Gather: %v"
+	emptyDevicesError    = "at least one device address should be specified"
+	deviceIgnoredMessage = "device skipped: %s\n"
 )
 
 type systemFetcher interface {
@@ -47,7 +49,7 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) Gather(acc telegraf.Accumulator) error {
-	devices := set.NewSet[string](p.Devices...)
+	devices := set.NewSet(p.Devices...)
 
 	if p.AllowSwarmMode {
 		swarmInfo, err := p.swarmFetcher.Fetch(p.Devices[0])
@@ -66,6 +68,11 @@ func (p *plugin) Gather(acc telegraf.Accumulator) error {
 
 		if err != nil {
 			return fmt.Errorf(gatherError, err)
+		}
+
+		if systemInfo == nil {
+			log.Printf(deviceIgnoredMessage, deviceAddress)
+			continue
 		}
 
 		metric := bitaxeMetric(*systemInfo)

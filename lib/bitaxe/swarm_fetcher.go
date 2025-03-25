@@ -3,6 +3,7 @@ package bitaxe
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -30,7 +31,8 @@ func (h *swarmFetcher) Fetch(address string) (SwarmInfo, error) {
 	response, err := client.Get(address)
 
 	if err != nil {
-		return SwarmInfo{}, fmt.Errorf(fetchError, address, err)
+		log.Printf(fetchError, address, err)
+		return SwarmInfo{}, nil
 	}
 
 	defer response.Body.Close()

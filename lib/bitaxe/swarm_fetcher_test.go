@@ -1,7 +1,10 @@
 package bitaxe
 
 import (
+	"bytes"
+	"log"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -32,8 +35,14 @@ func TestFetch(t *testing.T) {
 }
 
 func TestFetchWrongAddress(t *testing.T) {
+	buffer := bytes.Buffer{}
+	log.SetOutput(&buffer)
+	defer log.SetOutput(os.Stdout)
+
 	_, err := NewSwarmFetcher(1 * time.Second).Fetch("127.0.0.1:1")
-	require.Error(t, err)
+
+	require.Nil(t, err)
+	require.Contains(t, buffer.String(), "connection refused")
 }
 
 func TestFetchWithUnexpectedHTTPStatus(t *testing.T) {

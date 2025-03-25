@@ -1,9 +1,12 @@
 package bitaxe
 
 import (
+	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -86,8 +89,14 @@ func TestFetchSystemInfo(t *testing.T) {
 }
 
 func TestFetchSystemInfoWrongAddress(t *testing.T) {
+	buffer := bytes.Buffer{}
+	log.SetOutput(&buffer)
+	defer log.SetOutput(os.Stdout)
+
 	_, err := NewSystemFetcher(1 * time.Second).Fetch("127.0.0.1:1")
-	require.Error(t, err)
+
+	require.Nil(t, err)
+	require.Contains(t, buffer.String(), "connection refused")
 }
 
 func TestFetchSystemInfoWithUnexpectedHTTPStatus(t *testing.T) {
