@@ -44,17 +44,3 @@ type SystemInfo struct {
 	InvertFanPolarity int                  `json:"-"`
 	AutoFanSpeed      int                  `json:"autofanspeed"`
 }
-
-type SwarmInfo []struct {
-	IP string `json:"ip"`
-}
-
-func (i SwarmInfo) Addresses() []string {
-	h := make([]string, len(i))
-
-	for index, v := range i {
-		h[index] = v.IP
-	}
-
-	return h
-}

@@ -40,14 +40,6 @@ var (
 		AutoFanSpeed:      1,
 		FanSpeed:          100,
 	}
-	swarmInfo = bitaxelib.SwarmInfo{
-		{
-			IP: "10.0.0.1",
-		},
-		{
-			IP: "10.0.0.2",
-		},
-	}
 )
 
 type mockedSystemFetcher struct {
@@ -60,18 +52,6 @@ func (f *mockedSystemFetcher) Fetch(_ string) (*bitaxelib.SystemInfo, error) {
 	}
 
 	return systemInfo, nil
-}
-
-type mockedSwarmFetcher struct {
-	error bool
-}
-
-func (f *mockedSwarmFetcher) Fetch(_ string) (bitaxelib.SwarmInfo, error) {
-	if f.error {
-		return bitaxelib.SwarmInfo{}, fmt.Errorf("mocked fetcher error")
-	}
-
-	return swarmInfo, nil
 }
 
 func TestGatherWithOneDevice(t *testing.T) {
@@ -94,38 +74,6 @@ func TestGatherWithOneDeviceWithError(t *testing.T) {
 	bitaxe := &plugin{
 		systemFetcher: &mockedSystemFetcher{error: true},
 		Devices:       []string{"10.0.0.1"},
-	}
-
-	acc := &testutil.Accumulator{}
-	err := bitaxe.Gather(acc)
-
-	require.Error(t, err)
-}
-
-func TestGatherWithDevicesInSwarm(t *testing.T) {
-	bitaxe := &plugin{
-		systemFetcher:  &mockedSystemFetcher{},
-		swarmFetcher:   &mockedSwarmFetcher{},
-		Devices:        []string{"10.0.0.1"},
-		AllowSwarmMode: true,
-	}
-
-	acc := &testutil.Accumulator{}
-	err := bitaxe.Gather(acc)
-
-	require.NoError(t, err)
-	require.Equal(t, 32, acc.NFields())
-	metric := bitaxeMetric(*systemInfo)
-
-	acc.AssertContainsTaggedFields(t, "bitaxe", metric.Fields(), metric.Tags())
-}
-
-func TestGatherWithDevicesInSwarmWithError(t *testing.T) {
-	bitaxe := &plugin{
-		systemFetcher:  &mockedSystemFetcher{},
-		swarmFetcher:   &mockedSwarmFetcher{error: true},
-		Devices:        []string{"10.0.0.1"},
-		AllowSwarmMode: true,
 	}
 
 	acc := &testutil.Accumulator{}

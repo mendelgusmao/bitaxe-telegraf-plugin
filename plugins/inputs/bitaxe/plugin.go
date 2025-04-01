@@ -25,16 +25,10 @@ type systemFetcher interface {
 	Fetch(string) (*bitaxelib.SystemInfo, error)
 }
 
-type swarmFetcher interface {
-	Fetch(string) (bitaxelib.SwarmInfo, error)
-}
-
 type plugin struct {
-	Devices        []string      `toml:"devices"`
-	Timeout        time.Duration `toml:"timeout"`
-	AllowSwarmMode bool          `toml:"allow_swarm_mode"`
-	systemFetcher  systemFetcher
-	swarmFetcher   swarmFetcher
+	Devices       []string      `toml:"devices"`
+	Timeout       time.Duration `toml:"timeout"`
+	systemFetcher systemFetcher
 }
 
 func (p *plugin) Init() error {
@@ -43,25 +37,12 @@ func (p *plugin) Init() error {
 	}
 
 	p.systemFetcher = bitaxelib.NewSystemFetcher(p.Timeout)
-	p.swarmFetcher = bitaxelib.NewSwarmFetcher(p.Timeout)
 
 	return nil
 }
 
 func (p *plugin) Gather(acc telegraf.Accumulator) error {
 	devices := set.NewSet(p.Devices...)
-
-	if p.AllowSwarmMode {
-		swarmInfo, err := p.swarmFetcher.Fetch(p.Devices[0])
-
-		if err != nil {
-			return fmt.Errorf(gatherError, err)
-		}
-
-		for _, address := range swarmInfo.Addresses() {
-			devices.Add(address)
-		}
-	}
 
 	for _, deviceAddress := range devices.Values() {
 		systemInfo, err := p.systemFetcher.Fetch(deviceAddress)
@@ -91,9 +72,8 @@ func init() {
 		timeout, _ := time.ParseDuration("5s")
 
 		return &plugin{
-			Devices:        []string{},
-			Timeout:        timeout,
-			AllowSwarmMode: false,
+			Devices: []string{},
+			Timeout: timeout,
 		}
 	})
 }

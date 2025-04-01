@@ -25,11 +25,6 @@ To use it you have to create a plugin specific config file (e.g. /etc/telegraf/b
 
   ## Amount of time allowed to complete the HTTP request
   # timeout = "5s"
-
-  # allow_swarm_mode tells the gatherer to fetch swarm data from the
-  # first device in devices list and then from the hosts in the response.
-  # if the swarm list is empty, the gatherer falls back to the main devices list
-  # allow_swarm_mode = false
 ```
 The most important setting is the **devices** line. It defines the miners' IP addresses or hostnames to query. At least one address has to be defined.
 
