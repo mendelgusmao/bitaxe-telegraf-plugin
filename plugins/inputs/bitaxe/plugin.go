@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	bitaxelib "github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/bitaxe"
-	"github.com/mendelgusmao/bitaxe-telegraf-plugin/lib/set"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 	sampleConfig         string
 	gatherError          = "plugin.Gather: %v"
 	emptyDevicesError    = "at least one device address should be specified"
-	deviceIgnoredMessage = "device skipped: %s\n"
+	deviceSkippedMessage = "device skipped and removed: %s\n"
 )
 
 type systemFetcher interface {
@@ -42,25 +42,43 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) Gather(acc telegraf.Accumulator) error {
-	devices := set.NewSet(p.Devices...)
+	var (
+		wg           sync.WaitGroup
+		gatherErrors chan error
+	)
 
-	for _, deviceAddress := range devices.Values() {
-		systemInfo, err := p.systemFetcher.Fetch(deviceAddress)
+	wg.Add(len(p.Devices))
 
-		if err != nil {
-			return fmt.Errorf(gatherError, err)
-		}
+	for index, deviceAddress := range p.Devices {
+		go func() {
+			defer wg.Done()
 
-		if systemInfo == nil {
-			log.Printf(deviceIgnoredMessage, deviceAddress)
-			continue
-		}
+			systemInfo, err := p.systemFetcher.Fetch(deviceAddress)
 
-		metric := bitaxeMetric(*systemInfo)
-		acc.AddFields("bitaxe", metric.Fields(), metric.Tags())
+			if err != nil {
+				gatherErrors <- fmt.Errorf(gatherError, err)
+			}
+
+			if systemInfo == nil {
+				log.Printf(deviceSkippedMessage, deviceAddress)
+				p.Devices = append(p.Devices[:index], p.Devices[index+1:]...)
+				return
+			}
+
+			metric := bitaxeMetric(*systemInfo)
+			acc.AddFields("bitaxe", metric.Fields(), metric.Tags())
+
+		}()
 	}
 
-	return nil
+	wg.Wait()
+
+	select {
+	case err := <-gatherErrors:
+		return err
+	case <-time.After(1 * time.Second):
+		return nil
+	}
 }
 
 func (*plugin) SampleConfig() string {
