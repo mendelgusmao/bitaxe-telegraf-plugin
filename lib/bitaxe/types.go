@@ -17,7 +17,7 @@ type SystemInfo struct {
 	Current           float64              `json:"current"`
 	FanSpeed          int                  `json:"fanspeed"`
 	FanSpeedRpm       int                  `json:"fanSpeedRpm"`
-	Temp              int                  `json:"temp"`
+	Temp              float64              `json:"temp"`
 	OverheatMode      int                  `json:"overheat_mode"`
 	HashRate          float64              `json:"hashRate"`
 	BestDiff          *unit.SuffixedNumber `json:"bestDiff"`
